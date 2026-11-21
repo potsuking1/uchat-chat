@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UChat 채팅</title>
+  <script async src="https://client.uchat.io/uchat.js"></script>
+  <style>
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      background: #f5f7fb;
+    }
+
+    u-chat {
+      display: block;
+      width: calc(100vw - 32px);
+      max-width: 500px;
+      height: 500px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    @media (max-width: 600px) {
+      u-chat {
+        width: 100vw;
+        height: 100vh;
+        border: none;
+        border-radius: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <u-chat room="qoooang1"></u-chat>
+</body>
+</html>
