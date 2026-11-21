@@ -54,8 +54,7 @@
       display: flex;
       flex: 0 0 auto;
       align-items: center;
-      justify-content: space-between;
-      gap: 8px;
+      justify-content: flex-start;
       min-height: 48px;
       padding: 8px 12px;
       background: #f3f4f6;
@@ -66,25 +65,6 @@
       font-size: 14px;
       font-weight: 700;
       color: #111827;
-    }
-
-    .chat-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .chat-actions button {
-      padding: 7px 10px;
-      border: 1px solid #d1d5db;
-      border-radius: 6px;
-      background: #fff;
-      color: #111827;
-      font-size: 13px;
-      cursor: pointer;
-    }
-
-    .chat-actions button:hover {
-      background: #e5e7eb;
     }
 
     u-chat {
@@ -155,10 +135,6 @@
       opacity: 1;
     }
 
-    .chat-panel.is-wide {
-      --chat-width: 600px;
-    }
-
     @media (max-width: 600px) {
       :root {
         --chat-width: 100vw;
@@ -177,10 +153,6 @@
         min-width: min(280px, 100vw);
         max-width: 100vw;
         border: 0;
-      }
-
-      .chat-panel.is-wide {
-        --chat-width: 100vw;
       }
 
       .resize-handle {
@@ -202,10 +174,6 @@
     </button>
     <div class="chat-toolbar">
       <span class="chat-title">채팅</span>
-      <div class="chat-actions">
-        <button id="size-toggle" type="button" aria-pressed="false">넓게</button>
-        <button id="open-window" type="button">새 창에서 열기</button>
-      </div>
     </div>
     <u-chat room="qoooang1"></u-chat>
   </aside>
@@ -213,10 +181,7 @@
   <script>
     const panel = document.getElementById('chat-panel');
     const root = document.documentElement;
-    const sizeToggle = document.getElementById('size-toggle');
     const resizeHandle = document.getElementById('resize-handle');
-    const defaultWidth = 420;
-    let lastCustomWidth = defaultWidth;
     let dragStartX = 0;
     let dragStartWidth = 0;
 
@@ -225,26 +190,10 @@
       const maxWidth = Math.min(window.innerWidth * 0.9, window.innerWidth);
       const nextWidth = Math.max(minWidth, Math.min(maxWidth, width));
       root.style.setProperty('--chat-width', `${nextWidth}px`);
-      panel.classList.remove('is-wide');
       document.body.style.paddingRight = window.matchMedia('(max-width: 600px)').matches
         ? '0'
         : `${nextWidth}px`;
-      lastCustomWidth = nextWidth;
-      sizeToggle.textContent = '넓게';
-      sizeToggle.setAttribute('aria-pressed', 'false');
     }
-
-    sizeToggle.addEventListener('click', () => {
-      const isWide = panel.classList.toggle('is-wide');
-      if (isWide) {
-        root.style.setProperty('--chat-width', 'min(600px, 90vw)');
-        document.body.style.paddingRight = window.matchMedia('(max-width: 600px)').matches ? '0' : 'min(600px, 90vw)';
-      } else {
-        setWidth(lastCustomWidth || defaultWidth);
-      }
-      sizeToggle.textContent = isWide ? '기본 폭' : '넓게';
-      sizeToggle.setAttribute('aria-pressed', String(isWide));
-    });
 
     resizeHandle.addEventListener('pointerdown', (event) => {
       if (event.button !== 0 && event.pointerType === 'mouse') return;
@@ -270,21 +219,8 @@
     resizeHandle.addEventListener('pointerup', stopResize);
     resizeHandle.addEventListener('pointercancel', stopResize);
 
-    document.getElementById('open-window').addEventListener('click', () => {
-      const newWindow = window.open(
-        window.location.href,
-        'uchat-chat-window',
-        'popup=yes,width=520,height=720,resizable=yes,scrollbars=no'
-      );
-      if (!newWindow) {
-        alert('새 창이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.');
-      }
-    });
-
     window.addEventListener('resize', () => {
-      if (!panel.classList.contains('is-wide')) {
-        setWidth(panel.getBoundingClientRect().width);
-      }
+      setWidth(panel.getBoundingClientRect().width);
     });
   </script>
 </body>
