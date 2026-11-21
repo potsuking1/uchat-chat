@@ -10,6 +10,10 @@
       box-sizing: border-box;
     }
 
+    :root {
+      --chat-width: 420px;
+    }
+
     html,
     body {
       width: 100%;
@@ -19,7 +23,7 @@
 
     body {
       min-height: 100vh;
-      padding-right: 420px;
+      padding-right: var(--chat-width);
       background: #f5f7fb;
       font-family: sans-serif;
     }
@@ -35,14 +39,12 @@
       z-index: 1000;
       display: flex;
       flex-direction: column;
-      width: 420px;
+      width: var(--chat-width);
       height: 100vh;
       min-width: 280px;
       min-height: 320px;
       max-width: 90vw;
-      max-height: 100vh;
-      overflow: auto;
-      resize: both;
+      overflow: visible;
       border-left: 1px solid #d1d5db;
       background: #fff;
       box-shadow: -4px 0 20px rgba(0, 0, 0, 0.12);
@@ -93,12 +95,75 @@
       background: #fff;
     }
 
+    .resize-handle {
+      position: absolute;
+      top: 50%;
+      left: -10px;
+      z-index: 2;
+      display: grid;
+      width: 20px;
+      height: 68px;
+      padding: 0;
+      place-items: center;
+      transform: translateY(-50%);
+      border: 1px solid #93c5fd;
+      border-radius: 999px;
+      background: #2563eb;
+      color: #fff;
+      cursor: ew-resize;
+      touch-action: none;
+      user-select: none;
+    }
+
+    .resize-handle:hover,
+    .resize-handle:focus-visible,
+    .chat-panel.is-resizing .resize-handle {
+      background: #1d4ed8;
+      outline: 2px solid rgba(37, 99, 235, 0.25);
+    }
+
+    .resize-dots {
+      font-size: 20px;
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -3px;
+      writing-mode: vertical-rl;
+    }
+
+    .resize-tooltip {
+      position: absolute;
+      top: 50%;
+      right: calc(100% + 10px);
+      width: max-content;
+      max-width: min(250px, 70vw);
+      padding: 8px 10px;
+      transform: translateY(-50%);
+      border: 1px solid #374151;
+      border-radius: 6px;
+      background: #111827;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.15s ease;
+    }
+
+    .resize-handle:hover .resize-tooltip,
+    .resize-handle:focus-visible .resize-tooltip,
+    .chat-panel.is-resizing .resize-tooltip {
+      opacity: 1;
+    }
+
     .chat-panel.is-wide {
-      width: 600px;
-      max-width: 90vw;
+      --chat-width: 600px;
     }
 
     @media (max-width: 600px) {
+      :root {
+        --chat-width: 100vw;
+      }
+
       body {
         padding-right: 0;
       }
@@ -107,16 +172,19 @@
         display: none;
       }
 
-      .chat-panel,
-      .chat-panel.is-wide {
-        width: 100vw;
-        height: 100vh;
-        min-width: 0;
-        min-height: 0;
+      .chat-panel {
+        width: var(--chat-width);
+        min-width: min(280px, 100vw);
         max-width: 100vw;
-        max-height: 100vh;
-        resize: none;
         border: 0;
+      }
+
+      .chat-panel.is-wide {
+        --chat-width: 100vw;
+      }
+
+      .resize-handle {
+        left: 2px;
       }
     }
   </style>
@@ -124,10 +192,14 @@
 <body>
   <main class="page-content">
     <h1>UChat</h1>
-    <p>채팅창은 화면 오른쪽에 고정되어 있습니다.</p>
+    <p>채팅창은 화면 오른쪽에 고정되어 있습니다. 왼쪽 가장자리의 파란 손잡이를 드래그해 너비를 조절하세요.</p>
   </main>
 
   <aside class="chat-panel" id="chat-panel" aria-label="UChat 채팅창">
+    <button class="resize-handle" id="resize-handle" type="button" aria-label="채팅창 너비 조절" title="좌우로 드래그하여 채팅창 크기 조절">
+      <span class="resize-dots" aria-hidden="true">•••</span>
+      <span class="resize-tooltip" role="tooltip">좌우로 드래그하여 채팅창 크기 조절</span>
+    </button>
     <div class="chat-toolbar">
       <span class="chat-title">채팅</span>
       <div class="chat-actions">
@@ -140,13 +212,63 @@
 
   <script>
     const panel = document.getElementById('chat-panel');
+    const root = document.documentElement;
     const sizeToggle = document.getElementById('size-toggle');
+    const resizeHandle = document.getElementById('resize-handle');
+    const defaultWidth = 420;
+    let lastCustomWidth = defaultWidth;
+    let dragStartX = 0;
+    let dragStartWidth = 0;
+
+    function setWidth(width) {
+      const minWidth = Math.min(280, window.innerWidth);
+      const maxWidth = Math.min(window.innerWidth * 0.9, window.innerWidth);
+      const nextWidth = Math.max(minWidth, Math.min(maxWidth, width));
+      root.style.setProperty('--chat-width', `${nextWidth}px`);
+      panel.classList.remove('is-wide');
+      document.body.style.paddingRight = window.matchMedia('(max-width: 600px)').matches
+        ? '0'
+        : `${nextWidth}px`;
+      lastCustomWidth = nextWidth;
+      sizeToggle.textContent = '넓게';
+      sizeToggle.setAttribute('aria-pressed', 'false');
+    }
 
     sizeToggle.addEventListener('click', () => {
       const isWide = panel.classList.toggle('is-wide');
+      if (isWide) {
+        root.style.setProperty('--chat-width', 'min(600px, 90vw)');
+        document.body.style.paddingRight = window.matchMedia('(max-width: 600px)').matches ? '0' : 'min(600px, 90vw)';
+      } else {
+        setWidth(lastCustomWidth || defaultWidth);
+      }
       sizeToggle.textContent = isWide ? '기본 폭' : '넓게';
       sizeToggle.setAttribute('aria-pressed', String(isWide));
     });
+
+    resizeHandle.addEventListener('pointerdown', (event) => {
+      if (event.button !== 0 && event.pointerType === 'mouse') return;
+      event.preventDefault();
+      dragStartX = event.clientX;
+      dragStartWidth = panel.getBoundingClientRect().width;
+      panel.classList.add('is-resizing');
+      resizeHandle.setPointerCapture(event.pointerId);
+    });
+
+    resizeHandle.addEventListener('pointermove', (event) => {
+      if (!resizeHandle.hasPointerCapture(event.pointerId)) return;
+      setWidth(dragStartWidth + dragStartX - event.clientX);
+    });
+
+    function stopResize(event) {
+      panel.classList.remove('is-resizing');
+      if (resizeHandle.hasPointerCapture(event.pointerId)) {
+        resizeHandle.releasePointerCapture(event.pointerId);
+      }
+    }
+
+    resizeHandle.addEventListener('pointerup', stopResize);
+    resizeHandle.addEventListener('pointercancel', stopResize);
 
     document.getElementById('open-window').addEventListener('click', () => {
       const newWindow = window.open(
@@ -156,6 +278,12 @@
       );
       if (!newWindow) {
         alert('새 창이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.');
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (!panel.classList.contains('is-wide')) {
+        setWidth(panel.getBoundingClientRect().width);
       }
     });
   </script>
