@@ -72,21 +72,6 @@
       box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35);
     }
 
-    .resize-handle::before,
-    .resize-handle::after {
-      content: "";
-      position: absolute;
-      left: 50%;
-      width: 6px;
-      height: 14px;
-      transform: translateX(-50%) rotate(90deg);
-      border-top: 2px solid #94a3b8;
-      border-bottom: 2px solid #94a3b8;
-    }
-
-    .resize-handle::before { top: 16px; }
-    .resize-handle::after { bottom: 16px; }
-
     .resize-handle:hover,
     .resize-handle:focus-visible,
     .chat-panel.is-resizing .resize-handle {
@@ -96,26 +81,15 @@
     }
 
     .resize-grip {
-      position: relative;
-      z-index: 1;
       width: 6px;
-      height: 18px;
-      border-top: 2px solid #cbd5e1;
-      border-bottom: 2px solid #cbd5e1;
+      height: 16px;
+      border-radius: 1px;
+      background: repeating-linear-gradient(
+        to bottom,
+        #cbd5e1 0 2px,
+        transparent 2px 6px
+      );
     }
-
-    .resize-grip::before,
-    .resize-grip::after {
-      content: "";
-      position: absolute;
-      left: -1px;
-      width: 8px;
-      height: 2px;
-      background: #cbd5e1;
-    }
-
-    .resize-grip::before { top: 5px; }
-    .resize-grip::after { bottom: 5px; }
 
     .resize-tooltip {
       position: absolute;
