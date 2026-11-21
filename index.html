@@ -6,16 +6,11 @@
   <title>UChat 채팅</title>
   <script async src="https://client.uchat.io/uchat.js"></script>
   <style>
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
-    :root {
-      --chat-width: 420px;
-    }
+    :root { --chat-width: 420px; }
 
-    html,
-    body {
+    html, body {
       width: 100%;
       min-height: 100%;
       margin: 0;
@@ -28,9 +23,7 @@
       font-family: sans-serif;
     }
 
-    .page-content {
-      padding: 24px;
-    }
+    .page-content { padding: 24px; }
 
     .chat-panel {
       position: fixed;
@@ -50,23 +43,6 @@
       box-shadow: -4px 0 20px rgba(0, 0, 0, 0.12);
     }
 
-    .chat-toolbar {
-      display: flex;
-      flex: 0 0 auto;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 48px;
-      padding: 8px 12px;
-      background: #f3f4f6;
-      border-bottom: 1px solid #e5e7eb;
-    }
-
-    .chat-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: #111827;
-    }
-
     u-chat {
       display: block;
       flex: 1 1 auto;
@@ -78,33 +54,68 @@
     .resize-handle {
       position: absolute;
       top: 50%;
-      left: -4px;
+      left: -7px;
       z-index: 2;
       display: grid;
-      width: 12px;
-      height: 35px;
+      width: 14px;
+      height: 72px;
       padding: 0;
       place-items: center;
       transform: translateY(-50%);
-      border: 1px solid #93c5fd;
-      border-radius: 999px;
-      background: #2563eb;
-      color: #fff;
+      border: 1px solid #64748b;
+      border-radius: 7px;
+      background: #334155;
+      color: #cbd5e1;
       cursor: ew-resize;
       touch-action: none;
       user-select: none;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.35);
     }
+
+    .resize-handle::before,
+    .resize-handle::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      width: 6px;
+      height: 14px;
+      transform: translateX(-50%) rotate(90deg);
+      border-top: 2px solid #94a3b8;
+      border-bottom: 2px solid #94a3b8;
+    }
+
+    .resize-handle::before { top: 16px; }
+    .resize-handle::after { bottom: 16px; }
 
     .resize-handle:hover,
     .resize-handle:focus-visible,
     .chat-panel.is-resizing .resize-handle {
-      background: #1d4ed8;
-      outline: 2px solid rgba(37, 99, 235, 0.25);
+      background: #475569;
+      border-color: #94a3b8;
+      outline: 2px solid rgba(148, 163, 184, 0.25);
     }
 
-    .resize-dots {
-      display: none;
+    .resize-grip {
+      position: relative;
+      z-index: 1;
+      width: 6px;
+      height: 18px;
+      border-top: 2px solid #cbd5e1;
+      border-bottom: 2px solid #cbd5e1;
     }
+
+    .resize-grip::before,
+    .resize-grip::after {
+      content: "";
+      position: absolute;
+      left: -1px;
+      width: 8px;
+      height: 2px;
+      background: #cbd5e1;
+    }
+
+    .resize-grip::before { top: 5px; }
+    .resize-grip::after { bottom: 5px; }
 
     .resize-tooltip {
       position: absolute;
@@ -117,7 +128,7 @@
       border: 1px solid #374151;
       border-radius: 6px;
       background: #111827;
-      color: #FFFFFF;
+      color: #fff;
       font-size: 12px;
       font-weight: 600;
       opacity: 0;
@@ -132,17 +143,10 @@
     }
 
     @media (max-width: 600px) {
-      :root {
-        --chat-width: 100vw;
-      }
+      :root { --chat-width: 100vw; }
 
-      body {
-        padding-right: 0;
-      }
-
-      .page-content {
-        display: none;
-      }
+      body { padding-right: 0; }
+      .page-content { display: none; }
 
       .chat-panel {
         width: var(--chat-width);
@@ -151,26 +155,20 @@
         border: 0;
       }
 
-      .resize-handle {
-        left: 2px;
-      }
+      .resize-handle { left: 2px; }
     }
   </style>
 </head>
 <body>
   <main class="page-content">
     <h1>UChat</h1>
-    <p>채팅창은 화면 오른쪽에 고정되어 있습니다. 왼쪽 가장자리의 파란 손잡이를 드래그해 너비를 조절하세요.</p>
   </main>
 
   <aside class="chat-panel" id="chat-panel" aria-label="UChat 채팅창">
     <button class="resize-handle" id="resize-handle" type="button" aria-label="채팅창 너비 조절" title="좌우로 드래그하여 채팅창 크기 조절">
-      <span class="resize-dots" aria-hidden="true">•••</span>
+      <span class="resize-grip" aria-hidden="true"></span>
       <span class="resize-tooltip" role="tooltip">좌우로 드래그하여 채팅창 크기 조절</span>
     </button>
-    <div class="chat-toolbar">
-      <span class="chat-title">채팅</span>
-    </div>
     <u-chat room="qoooang1"></u-chat>
   </aside>
 
