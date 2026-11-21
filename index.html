@@ -6,41 +6,150 @@
   <title>UChat 채팅</title>
   <script async src="https://client.uchat.io/uchat.js"></script>
   <style>
+    * {
+      box-sizing: border-box;
+    }
+
     html,
     body {
       width: 100%;
-      height: 100%;
+      min-height: 100%;
       margin: 0;
     }
 
     body {
-      display: grid;
-      place-items: center;
+      min-height: 100vh;
       background: #f5f7fb;
+      font-family: sans-serif;
+    }
+
+    .chat-launcher {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 1000;
+      padding: 13px 20px;
+      border: 0;
+      border-radius: 999px;
+      background: #2563eb;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .chat-popup {
+      position: fixed;
+      right: 24px;
+      bottom: 88px;
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      width: min(380px, calc(100vw - 32px));
+      height: min(520px, calc(100vh - 120px));
+      overflow: hidden;
+      border: 1px solid #ccc;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.22);
+    }
+
+    .chat-popup[hidden] {
+      display: none;
+    }
+
+    .chat-toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding: 8px;
+      background: #f3f4f6;
+    }
+
+    .chat-toolbar button {
+      padding: 7px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      background: #fff;
+      color: #111827;
+      cursor: pointer;
     }
 
     u-chat {
       display: block;
-      width: calc(100vw - 32px);
-      max-width: 500px;
-      height: 100%;
-      overflow: hidden;
-      border: 1px solid #ddd;
-      border-radius: 12px;
+      flex: 1;
+      width: 100%;
+      min-height: 0;
       background: #fff;
     }
 
+    .chat-popup.is-expanded {
+      width: min(600px, calc(100vw - 32px));
+      height: min(750px, calc(100vh - 120px));
+    }
+
     @media (max-width: 600px) {
-      u-chat {
+      .chat-launcher {
+        right: 16px;
+        bottom: 16px;
+      }
+
+      .chat-popup,
+      .chat-popup.is-expanded {
+        right: 0;
+        bottom: 0;
         width: 100vw;
         height: 100vh;
-        border: fixed;
+        max-height: 100vh;
+        border: 0;
         border-radius: 0;
       }
     }
   </style>
 </head>
 <body>
-  <u-chat room="qoooang1"></u-chat>
+  <button
+    class="chat-launcher"
+    id="chat-launcher"
+    type="button"
+    aria-controls="chat-popup"
+    aria-expanded="false"
+  >채팅 열기</button>
+
+  <section class="chat-popup" id="chat-popup" aria-label="UChat 채팅창" hidden>
+    <div class="chat-toolbar">
+      <button id="chat-size-toggle" type="button" aria-pressed="false">확대</button>
+      <button id="chat-close" type="button">닫기</button>
+    </div>
+    <u-chat room="qoooang1"></u-chat>
+  </section>
+
+  <script>
+    const launcher = document.getElementById('chat-launcher');
+    const popup = document.getElementById('chat-popup');
+    const sizeToggle = document.getElementById('chat-size-toggle');
+    const closeButton = document.getElementById('chat-close');
+
+    function setChatOpen(isOpen) {
+      popup.hidden = !isOpen;
+      launcher.setAttribute('aria-expanded', String(isOpen));
+      launcher.textContent = isOpen ? '채팅창 숨기기' : '채팅 열기';
+
+      if (!isOpen) {
+        popup.classList.remove('is-expanded');
+        sizeToggle.textContent = '확대';
+        sizeToggle.setAttribute('aria-pressed', 'false');
+      }
+    }
+
+    launcher.addEventListener('click', () => setChatOpen(popup.hidden));
+    closeButton.addEventListener('click', () => setChatOpen(false));
+    sizeToggle.addEventListener('click', () => {
+      const isExpanded = popup.classList.toggle('is-expanded');
+      sizeToggle.textContent = isExpanded ? '축소' : '확대';
+      sizeToggle.setAttribute('aria-pressed', String(isExpanded));
+    });
+  </script>
 </body>
 </html>
